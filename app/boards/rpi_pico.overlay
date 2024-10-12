@@ -26,21 +26,18 @@
 	status = "okay";
 };
 
-/*
- * Copyright (c) 2022 Brandon Satrom
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
+/* Shell console using USB
+*
+*/
 / {
 	chosen {
-		zephyr,console = &cdc_acm_uart0;
+		zephyr,console = &snippet_cdc_acm_console_uart;
+		zephyr,shell-uart = &snippet_cdc_acm_console_uart;
 	};
 };
 
 &zephyr_udc0 {
-	cdc_acm_uart0: cdc_acm_uart0 {
+	snippet_cdc_acm_console_uart: snippet_cdc_acm_console_uart {
 		compatible = "zephyr,cdc-acm-uart";
-		label = "CDC_ACM_0";
 	};
 };

@@ -60,6 +60,21 @@ SHELL_CMD_REGISTER(ping, NULL, "Respond with pong", cmd_demo_ping);
 
 int main(void)
 {
+	// Configure USB Serial for Console output
+	const struct device *usb_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+	uint32_t dtr = 0;
+
+	if (usb_enable(NULL)) {
+		return 1;
+	}
+
+	// Sleep to wait for a terminal connection. To wait until connected, comment out
+	// these two lines and uncomment the while below.
+	k_sleep(K_MSEC(2500));
+	uart_line_ctrl_get(usb_dev, UART_LINE_CTRL_DTR, &dtr);
+
+
+
     LOG_INF("Program starting"); // example info message
 	int ret;
 	bool led_state = true;
@@ -67,36 +82,21 @@ int main(void)
 	if (!gpio_is_ready_dt(&led)) {
 		return 0;
 	}
-	// Turn ON LED
+
 	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
 	if (ret < 0) {
 		return 0;
 	}
-	// Shell config
-	const struct device *dev;
-	uint32_t dtr = 0;
 
-	dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_shell_uart));
-	if (!device_is_ready(dev) || usb_enable(NULL)) {
-		return 0;
+	while (1) {
+		ret = gpio_pin_toggle_dt(&led);
+		if (ret < 0) {
+			return 0;
+		}
+
+		led_state = !led_state;
+		printk("LED state: %s\n", led_state ? "ON" : "OFF");
+		k_msleep(SLEEP_TIME_MS);
 	}
-
-	while (!dtr) {
-		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
-		k_sleep(K_MSEC(100));
-	}
-
-	LOG_INF("USB device configured and connected");
-    // this loop is needed to define how often log messages are processed
-    while (true) {
-        k_msleep(30);   /* sleep 30 ms*/
-    }
-
-	// Turn OFF LED at the end
-	ret = gpio_pin_set_dt(&led, 0);
-	if (ret < 0) {
-		return 0;
-	}
-
 	return 0;
 }

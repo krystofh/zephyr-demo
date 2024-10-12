@@ -8,8 +8,10 @@
 - Build with `west build -b rpi_pico app` in the `zephyr-demo` subdirectory
 - The `.uf2` file is located in `zephyr-demo/build/zephyr`
 
-## Useful links
+## Useful links and hints
 
 - Using USB serial communication https://www.gnd.io/zephyr-console-output/ 
   - Contrary to the article, one has to specify the overlay in `rpi_pico.overlay` as it has priority over `app.overlay`. Read more [here](https://docs.zephyrproject.org/3.3.0/build/dts/howtos.html#set-devicetree-overlays)
 - Configure device as CDC (Communication device class) using ACM (abstract control module) https://docs.zephyrproject.org/latest/connectivity/usb/device/usb_device.html#cdc-acm
+- Building the `shell_module` with USB console, use command: `west build -b rpi_pico -S cdc-acm-console -p always zephyr/samples/subsys/shell/shell_module`
+- When using the shell, set line ending to `CR`
