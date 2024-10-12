@@ -8,8 +8,16 @@
 
 menu "Zephyr"
 source "Kconfig.zephyr"
+# USB communication
+config USB_PID_CONSOLE_SAMPLE
+    hex
+    default 0x0004
+    depends on USB_DEVICE_STACK
+config USB_DEVICE_PID
+    default USB_PID_CONSOLE_SAMPLE
 endmenu
 
-module = APP
-module-str = APP
+# Logging module
+module = MAIN
+module-str = main
 source "subsys/logging/Kconfig.template.log_config"
