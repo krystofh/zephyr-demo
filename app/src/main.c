@@ -67,17 +67,7 @@ static int cmd_demo_params(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
-static int cmd_led_on(const struct shell *sh, size_t argc, char **argv)
-{
-	// Turn ON LED
-	return (gpio_pin_set_dt(&led, 1) < 0) ? 1 : (shell_print(sh, "LED on"), 0);
-}
-
-static int cmd_led_off(const struct shell *sh, size_t argc, char **argv)
-{
-	// Turn OFF LED
-	return (gpio_pin_set_dt(&led, 0) < 0) ? 1 : (shell_print(sh, "LED OFF"), 0);
-}
+/// -----------  LED CONTROL -------------------------------------------------------
 
 // Init work items
 static int blink_period = 500; // in ms
@@ -99,6 +89,7 @@ static void stop_blinking()
 	if (ret == 0)
 	{
 		printk("Blinking stopped successfully.\n");
+		LOG_INF("log example");
 	}
 	else if (ret == -EALREADY)
 	{
@@ -108,6 +99,22 @@ static void stop_blinking()
 	{
 		printk("Failed to stop blinking.\n");
 	}
+}
+
+static int cmd_led_on(const struct shell *sh, size_t argc, char **argv)
+{
+	// Stop blinking first
+	stop_blinking();
+	// Turn ON LED
+	return (gpio_pin_set_dt(&led, 1) < 0) ? 1 : (shell_print(sh, "LED on"), 0);
+}
+
+static int cmd_led_off(const struct shell *sh, size_t argc, char **argv)
+{
+	// Stop blinking first
+	stop_blinking();
+	// Turn OFF LED
+	return (gpio_pin_set_dt(&led, 0) < 0) ? 1 : (shell_print(sh, "LED OFF"), 0);
 }
 
 // Blink the led with a set period in ms
@@ -138,7 +145,7 @@ SHELL_CMD_ARG_REGISTER(led_blink, NULL, "Blink the LED with a defined period in 
 
 int main(void)
 {
-	LOG_INF("Program starting"); // example info messag
+	LOG_INF("Program starting"); // example info message
 	// Init the LED device in logic 1 state
 	int ret;
 	if (!gpio_is_ready_dt(&led))
