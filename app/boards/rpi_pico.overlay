@@ -8,17 +8,31 @@
  * how the example-application can be built on sample boards already provided
  * by Zephyr.
  */
-
-/ {
-	example_sensor: example-sensor {
-		compatible = "zephyr,example-sensor";
-		input-gpios = <&gpio0 13 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+/{
+	aliases {
+		sw0 = &button0; // Button alias used throughout the code
 	};
+
+	buttons {
+        compatible = "gpio-keys";  // Compatible with gpio-keys driver
+        button0: button_0 {
+            gpios = < &gpio0 4 (GPIO_PULL_UP | GPIO_ACTIVE_LOW) >;  // Button at GPIO 4
+            label = "User button";
+        };
+    };
 
 	blink_led: blink-led {
 		compatible = "blink-gpio-led";
 		led-gpios = <&gpio0 25 GPIO_ACTIVE_HIGH>;
 		blink-period-ms = <1000>;
+	};
+
+	leds{
+		compatible = "gpio-leds";
+		red_led:red-led{
+			gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+			label = "Red LED triggered by button";
+		};
 	};
 };
 
