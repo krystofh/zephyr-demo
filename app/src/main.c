@@ -88,16 +88,15 @@ static void stop_blinking()
 	int ret = k_work_cancel_delayable(&led_work);
 	if (ret == 0)
 	{
-		printk("Blinking stopped successfully.\n");
-		LOG_INF("log example");
+		LOG_INF("Blinking stopped successfully.\n");
 	}
 	else if (ret == -EALREADY)
 	{
-		printk("Blinking was already stopped.\n");
+		LOG_INF("Blinking was already stopped.\n"); // delete if not needed
 	}
 	else
 	{
-		printk("Failed to stop blinking.\n");
+		LOG_ERR("Failed to stop blinking.\n");
 	}
 }
 
@@ -105,8 +104,15 @@ static int cmd_led_on(const struct shell *sh, size_t argc, char **argv)
 {
 	// Stop blinking first
 	stop_blinking();
+
 	// Turn ON LED
-	return (gpio_pin_set_dt(&led, 1) < 0) ? 1 : (shell_print(sh, "LED on"), 0);
+	int response = gpio_pin_set_dt(&led, 1);
+	if (response < 0)
+	{
+		return 1;
+	}
+	LOG_INF("LED ON\n");
+	return 0;
 }
 
 static int cmd_led_off(const struct shell *sh, size_t argc, char **argv)
@@ -114,23 +120,30 @@ static int cmd_led_off(const struct shell *sh, size_t argc, char **argv)
 	// Stop blinking first
 	stop_blinking();
 	// Turn OFF LED
-	return (gpio_pin_set_dt(&led, 0) < 0) ? 1 : (shell_print(sh, "LED OFF"), 0);
+	int response = gpio_pin_set_dt(&led, 0);
+	if (response < 0)
+	{
+		return 1;
+	}
+	LOG_INF("LED OFF\n");
+	return 0;
 }
 
 // Blink the led with a set period in ms
 static int cmd_led_blink(const struct shell *sh, size_t argc, char **argv)
 {
+	// TODO handle negative numbers or no numbers at all
 	blink_period = atoi(argv[1]); // store the argument in global variable
 	if (blink_period > 0)
 	{
 		stop_blinking(); // stop previous work processing to react to new command exec
-		shell_print(sh, "Starting to blink with period %d ms", blink_period);
+		LOG_INF("Starting to blink with period %d ms\n", blink_period);
 		k_work_init_delayable(&led_work, led_blink_work);
 		k_work_schedule(&led_work, K_NO_WAIT); // schedule the first execution to start immediately
 	}
 	else
 	{
-		shell_print(sh, "Setting blink period not successful");
+		LOG_ERR("Setting blink period not successful\n");
 		return 1;
 	};
 	return 0;
@@ -145,7 +158,7 @@ SHELL_CMD_ARG_REGISTER(led_blink, NULL, "Blink the LED with a defined period in 
 
 int main(void)
 {
-	LOG_INF("Program starting"); // example info message
+	LOG_INF("Program starting\n"); // example info message
 	// Init the LED device in logic 1 state
 	int ret;
 	if (!gpio_is_ready_dt(&led))
@@ -170,7 +183,7 @@ int main(void)
 		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
 		k_sleep(K_MSEC(100));
 	}
-	LOG_INF("USB device configured and connected");
+	LOG_INF("USB device configured and connected\n");
 	// Wait in this loop for shell commands or process messages
 	while (true)
 	{
