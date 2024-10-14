@@ -27,6 +27,7 @@
 #include "led_control.h"
 #include "console_demo.h"
 #include "button_control.h"
+#include "thread_communication.h"
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS 20
@@ -41,15 +42,15 @@ LOG_MODULE_REGISTER(main, CONFIG_MAIN_LOG_LEVEL); // registers the log level for
 
 int main(void)
 {
-	printk("Program starting\n"); // example info message
+	LOG_INF("Program starting\n"); // example info message
 	// Init the LED devices in logic 1 state
 	if (!init_leds())
 	{
-		printk("LED devices initialised properly");
+		LOG_ERR("LED devices initialised properly");
 	}
 	else
 	{
-		printk("LEDs could not be initialised!");
+		LOG_INF("LEDs could not be initialised!");
 	}
 
 	// Button config
@@ -77,6 +78,10 @@ int main(void)
 	// }
 	LOG_INF("USB device configured and connected\n");
 
+	// Thread demo - spawn threads only when console is initiated
+	// Define threads
+	// sinit_threads();
+
 	// Wait in this loop for shell commands or process messages
 	while (true)
 	{
@@ -89,6 +94,5 @@ int main(void)
 		}
 		k_msleep(SLEEP_TIME_MS); /* sleep x ms*/
 	}
-
 	return 0;
 }
