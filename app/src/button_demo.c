@@ -14,6 +14,8 @@
 
 #define SLEEP_TIME_MS 1
 
+LOG_MODULE_REGISTER(btnctrl, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log level for the module
+
 /*
  * Get button configuration from the devicetree sw0 alias. This is mandatory.
  */

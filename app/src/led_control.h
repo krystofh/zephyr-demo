@@ -10,12 +10,12 @@
 // Define the LED0_NODE alias for the onboard LED
 // #define LED0_NODE DT_ALIAS(led0)
 #define STATUS_LED_NODE DT_NODELABEL(status_led)
-#define RED_LED_NODE DT_NODELABEL(red_led)
+#define BUTTON_LED_NODE DT_NODELABEL(button_led)
 
 extern int blink_period;
 extern struct k_work_delayable led_work;
 extern const struct gpio_dt_spec status_led;
-extern const struct gpio_dt_spec red_led;
+extern const struct gpio_dt_spec button_led;
 
 // Function declarations
 int init_leds(void);

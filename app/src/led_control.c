@@ -12,7 +12,7 @@ struct k_work_delayable led_work;
  * See the sample documentation for information on how to fix this.
  */
 const struct gpio_dt_spec status_led = GPIO_DT_SPEC_GET(STATUS_LED_NODE, gpios); // onboard LED device
-const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios);       // red LED
+const struct gpio_dt_spec button_led = GPIO_DT_SPEC_GET(BUTTON_LED_NODE, gpios); // red LED
 
 // initialise all LED devices
 int init_leds()
@@ -28,11 +28,11 @@ int init_leds()
         return 0;
     }
     // Init the red LED that will react to the button
-    if (!gpio_is_ready_dt(&red_led))
+    if (!gpio_is_ready_dt(&button_led))
     {
         return 0;
     }
-    ret = gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_ACTIVE);
+    ret = gpio_pin_configure_dt(&button_led, GPIO_OUTPUT_INACTIVE);
     if (ret < 0)
     {
         return 0;

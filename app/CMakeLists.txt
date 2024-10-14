@@ -12,3 +12,5 @@ project(app LANGUAGES C)
 target_sources(app PRIVATE src/main.c)
 target_sources(app PRIVATE src/led_control.c)
 target_sources(app PRIVATE src/console_demo.c)
+target_sources(app PRIVATE src/button_control.c)
+

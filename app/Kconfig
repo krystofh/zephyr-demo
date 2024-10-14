@@ -29,3 +29,7 @@ source "subsys/logging/Kconfig.template.log_config"
 module = LEDCTRL
 module-str = ledctrl
 source "subsys/logging/Kconfig.template.log_config"
+
+module = BUTTONCTRL
+module-str = buttonctrl
+source "subsys/logging/Kconfig.template.log_config"

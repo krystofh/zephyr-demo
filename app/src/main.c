@@ -26,9 +26,10 @@
 // Own code
 #include "led_control.h"
 #include "console_demo.h"
+#include "button_control.h"
 
 /* 1000 msec = 1 sec */
-#define SLEEP_TIME_MS 500
+#define SLEEP_TIME_MS 20
 
 /*
  * Ensure that an overlay for USB serial has been defined.
@@ -50,6 +51,17 @@ int main(void)
 	{
 		printk("LEDs could not be initialised!");
 	}
+
+	// Button config
+	if (init_button())
+	{
+		LOG_ERR("Button init failed!");
+	}
+	else
+	{
+		LOG_INF("Button init successful!");
+	}
+
 	// Shell config
 	const struct device *dev;
 	uint32_t dtr = 0;
@@ -58,16 +70,24 @@ int main(void)
 	{
 		return 0;
 	}
-	while (!dtr) // wait for shell device to be ready
-	{
-		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
-		k_sleep(K_MSEC(100));
-	}
+	// while (!dtr) // wait for shell device to be ready
+	// {
+	uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+	k_sleep(K_MSEC(100));
+	// }
 	LOG_INF("USB device configured and connected\n");
+
 	// Wait in this loop for shell commands or process messages
 	while (true)
 	{
-		k_msleep(30); /* sleep 30 ms*/
+		/* If we have an LED, match its state to the button's. */
+		int val = gpio_pin_get_dt(&button);
+
+		if (val >= 0)
+		{
+			gpio_pin_set_dt(&button_led, val);
+		}
+		k_msleep(SLEEP_TIME_MS); /* sleep x ms*/
 	}
 
 	return 0;
