@@ -17,7 +17,11 @@ config USB_DEVICE_PID
     default USB_PID_CONSOLE_SAMPLE
 endmenu
 
-# Logging module
+# Logging modules
 module = MAIN
 module-str = main
+source "subsys/logging/Kconfig.template.log_config"
+
+module = CONSOLE
+module-str = console
 source "subsys/logging/Kconfig.template.log_config"

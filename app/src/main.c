@@ -23,6 +23,10 @@
 #include <zephyr/shell/shell.h>
 #include <zephyr/version.h>
 
+// Own code
+// #include "led_control.h"
+#include "console_demo.h"
+
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS 500
 
@@ -43,30 +47,6 @@ LOG_MODULE_REGISTER(main, CONFIG_MAIN_LOG_LEVEL); // registers the log level for
  */
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios); // onboard LED device
 // static struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(DT_NODELABEL(red_led), gpios); // red LED
-
-// Example shell command handler
-// Prints "pong" as a response to "ping" request
-static int cmd_demo_ping(const struct shell *sh, size_t argc, char **argv)
-{
-	ARG_UNUSED(argc);
-	ARG_UNUSED(argv);
-
-	shell_print(sh, "pong");
-
-	return 0;
-}
-
-// Print out command with provided arguments
-static int cmd_demo_params(const struct shell *sh, size_t argc, char **argv)
-{
-	shell_print(sh, "argc = %zd", argc);
-	for (size_t cnt = 0; cnt < argc; cnt++)
-	{
-		shell_print(sh, "  argv[%zd] = %s", cnt, argv[cnt]);
-	}
-
-	return 0;
-}
 
 /// -----------  LED CONTROL -------------------------------------------------------
 
@@ -151,8 +131,6 @@ static int cmd_led_blink(const struct shell *sh, size_t argc, char **argv)
 }
 
 // Register commands
-SHELL_CMD_REGISTER(ping, NULL, "Respond with pong", cmd_demo_ping);
-SHELL_CMD_REGISTER(params, NULL, "Print params command.", cmd_demo_params);
 SHELL_CMD_REGISTER(led_on, NULL, "Turn the LED ON", cmd_led_on);
 SHELL_CMD_REGISTER(led_off, NULL, "Turn the LED OFF", cmd_led_off);
 SHELL_CMD_ARG_REGISTER(led_blink, NULL, "Blink the LED with a defined period in ms.", cmd_led_blink, 2, NULL); // 2 mandatory args - the command name and ther period
