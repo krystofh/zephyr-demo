@@ -33,3 +33,7 @@ source "subsys/logging/Kconfig.template.log_config"
 module = BUTTONCTRL
 module-str = buttonctrl
 source "subsys/logging/Kconfig.template.log_config"
+
+module = MESSAGING
+module-str = messaging
+source "subsys/logging/Kconfig.template.log_config"
