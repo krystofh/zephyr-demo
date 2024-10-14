@@ -40,29 +40,16 @@ LOG_MODULE_REGISTER(main, CONFIG_MAIN_LOG_LEVEL); // registers the log level for
 
 int main(void)
 {
-	LOG_INF("Program starting\n"); // example info message
+	printk("Program starting\n"); // example info message
 	// Init the LED devices in logic 1 state
-	int ret;
-	if (!gpio_is_ready_dt(&led))
+	if (!init_leds())
 	{
-		return 0;
+		printk("LED devices initialised properly");
 	}
-	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0)
+	else
 	{
-		return 0;
+		printk("LEDs could not be initialised!");
 	}
-	// Init the red LED that will react to the button
-	if (!gpio_is_ready_dt(&red_led))
-	{
-		return 0;
-	}
-	ret = gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0)
-	{
-		return 0;
-	}
-
 	// Shell config
 	const struct device *dev;
 	uint32_t dtr = 0;

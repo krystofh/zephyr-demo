@@ -11,14 +11,40 @@ struct k_work_delayable led_work;
  * A build error on this line means your board is unsupported.
  * See the sample documentation for information on how to fix this.
  */
-const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);        // onboard LED device
-const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios); // red LED
+const struct gpio_dt_spec status_led = GPIO_DT_SPEC_GET(STATUS_LED_NODE, gpios); // onboard LED device
+const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios);       // red LED
+
+// initialise all LED devices
+int init_leds()
+{
+    int ret;
+    if (!gpio_is_ready_dt(&status_led))
+    {
+        return 0;
+    }
+    ret = gpio_pin_configure_dt(&status_led, GPIO_OUTPUT_ACTIVE);
+    if (ret < 0)
+    {
+        return 0;
+    }
+    // Init the red LED that will react to the button
+    if (!gpio_is_ready_dt(&red_led))
+    {
+        return 0;
+    }
+    ret = gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_ACTIVE);
+    if (ret < 0)
+    {
+        return 0;
+    }
+    return 0;
+}
 
 void led_blink_work(struct k_work *work)
 {
     // Toggle LED
     int ret;
-    ret = gpio_pin_toggle_dt(&led);
+    ret = gpio_pin_toggle_dt(&status_led);
     // Reschedule the work to be done again in half of the period ms
     k_work_reschedule(&led_work, K_MSEC(blink_period / 2)); // provide time as k_ticks_t using the macro for conversion
 }
@@ -47,7 +73,7 @@ int cmd_led_on(const struct shell *sh, size_t argc, char **argv)
     stop_blinking();
 
     // Turn ON LED
-    int response = gpio_pin_set_dt(&led, 1);
+    int response = gpio_pin_set_dt(&status_led, 1);
     if (response < 0)
     {
         return 1;
@@ -61,7 +87,7 @@ int cmd_led_off(const struct shell *sh, size_t argc, char **argv)
     // Stop blinking first
     stop_blinking();
     // Turn OFF LED
-    int response = gpio_pin_set_dt(&led, 0);
+    int response = gpio_pin_set_dt(&status_led, 0);
     if (response < 0)
     {
         return 1;
