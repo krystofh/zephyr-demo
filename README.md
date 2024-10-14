@@ -2,12 +2,13 @@
 
 - workspace application type (`app`) that showcases some basics such as:
   - usage of the `shell` module and `CLI` commands
-  - setting GPIO output (built-in LED)
+  - setting GPIO output (built-in LED or externally connected one)
+  - button press detection using `gpio_callback` (not shown in [demonstration](#demonstration) yet)
   - device tree overlay definition
   - project config - setup of USB/UART communication etc.
   - usage of logging
   - communication between parallel running threads using message queue `FIFO`
-- this example application follows T2 topology as described [here](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
+- this example application follows the T2 topology as described [here](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
 - tested using:
   - Raspberry Pi Pico 1 (RP 2040)
   - macOS Sequoia 15.0.1
