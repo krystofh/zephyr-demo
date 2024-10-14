@@ -11,8 +11,8 @@ struct k_work_delayable led_work;
  * A build error on this line means your board is unsupported.
  * See the sample documentation for information on how to fix this.
  */
-const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios); // onboard LED device
-// static struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(DT_NODELABEL(red_led), gpios); // red LED
+const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);        // onboard LED device
+const struct gpio_dt_spec red_led = GPIO_DT_SPEC_GET(RED_LED_NODE, gpios); // red LED
 
 void led_blink_work(struct k_work *work)
 {

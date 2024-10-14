@@ -53,16 +53,15 @@ int main(void)
 		return 0;
 	}
 	// Init the red LED that will react to the button
-	// ERROR / does end in return statement
-	// if (!gpio_is_ready_dt(&red_led))
-	// {
-	// 	return 0;
-	// }
-	// ret = gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_ACTIVE);
-	// if (ret < 0)
-	// {
-	// 	return 0;
-	// }
+	if (!gpio_is_ready_dt(&red_led))
+	{
+		return 0;
+	}
+	ret = gpio_pin_configure_dt(&red_led, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0)
+	{
+		return 0;
+	}
 
 	// Shell config
 	const struct device *dev;
