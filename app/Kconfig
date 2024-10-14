@@ -25,3 +25,7 @@ source "subsys/logging/Kconfig.template.log_config"
 module = CONSOLE
 module-str = console
 source "subsys/logging/Kconfig.template.log_config"
+
+module = LEDCTRL
+module-str = ledctrl
+source "subsys/logging/Kconfig.template.log_config"

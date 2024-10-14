@@ -9,7 +9,7 @@ LOG_MODULE_REGISTER(console_demo, CONFIG_LOG_DEFAULT_LEVEL); // Registers the lo
 
 // Example shell command handler
 // Prints "pong" as a response to "ping" request
-static int cmd_demo_ping(const struct shell *sh, size_t argc, char **argv)
+int cmd_demo_ping(const struct shell *sh, size_t argc, char **argv)
 {
     ARG_UNUSED(argc);
     ARG_UNUSED(argv);
@@ -20,7 +20,7 @@ static int cmd_demo_ping(const struct shell *sh, size_t argc, char **argv)
 }
 
 // Print out command with provided arguments
-static int cmd_demo_params(const struct shell *sh, size_t argc, char **argv)
+int cmd_demo_params(const struct shell *sh, size_t argc, char **argv)
 {
     shell_print(sh, "argc = %zd", argc);
     for (size_t cnt = 0; cnt < argc; cnt++)
