@@ -6,11 +6,20 @@
 #include <string.h>
 #include <zephyr/logging/log.h>
 
-extern const char *static_message;
 extern int msg_counter;
+extern const char *static_message;
 
-void producer_thread(void);
-void consumer_thread(void);
-// void init_threads(void);
+extern struct data_item_t
+{
+    void *fifo_reserved; /* 1st word reserved for use by FIFO */
+    int msg_counter;
+    char *info;
+} fifo_message;
+
+void msgq_producer_thread(void);
+void msgq_consumer_thread(void);
+
+void fifo_producer_thread(void);
+void fifo_consumer_thread(void);
 
 #endif // THREAD_COMMUNICATION_H
