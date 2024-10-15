@@ -8,7 +8,8 @@ LOG_MODULE_REGISTER(messaging, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log l
 #define MSG_SIZE 24  // 1 for each char + 1 for null terminator
 
 K_MSGQ_DEFINE(msg_queue, MSG_SIZE, QUEUE_SIZE, 4); // msg queue aligned to 4 bytes
-K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to the number of items that may be queued.
+// K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to the number of items that may be queued.
+K_FIFO_DEFINE(fifo_queue);
 
 // Thread stack sizes
 #define STACK_SIZE 1024
@@ -18,21 +19,23 @@ K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to
 #define CONSUMER_PRIORITY 1
 
 // Spawn threads
-K_THREAD_DEFINE(msgq_producer_tid, STACK_SIZE, msgq_producer_thread, NULL, NULL, NULL,
-                PRODUCER_PRIORITY, 0, 0);
-K_THREAD_DEFINE(msgq_consumer_tid, STACK_SIZE, msgq_consumer_thread, NULL, NULL, NULL,
-                CONSUMER_PRIORITY, 0, 0);
-K_THREAD_DEFINE(fifo_producer_tid, STACK_SIZE, fifo_producer_thread, NULL, NULL, NULL,
-                PRODUCER_PRIORITY, 0, 0);
-K_THREAD_DEFINE(fifo_consumer_tid, STACK_SIZE, fifo_consumer_thread, NULL, NULL, NULL,
-                CONSUMER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(msgq_producer_tid, STACK_SIZE, msgq_producer_thread, NULL, NULL, NULL,
+//                 PRODUCER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(msgq_consumer_tid, STACK_SIZE, msgq_consumer_thread, NULL, NULL, NULL,
+//                 CONSUMER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(fifo_producer_tid, STACK_SIZE, fifo_producer_thread, NULL, NULL, NULL,
+//                 PRODUCER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(fifo_consumer_tid, STACK_SIZE, fifo_consumer_thread, NULL, NULL, NULL,
+//                 CONSUMER_PRIORITY, 0, 0);
 
-int msg_counter = 0; // count number of sent FIFO msgs
+int msg_counter = 0; // count total number of sent FIFO messages (no reset)
 const char *static_message = "static message example";
 #if FIFO_DYNAMIC
 #else
 struct data_item_t fifo_message;
 #endif // FIFO_DYNAMIC
+// sys_slist_t linked_list;
+// sys_slist_init(&linked_list); // initialise the linked list
 
 // Producer thread function for MSGQ sending static message every 1 second
 void msgq_producer_thread(void)
@@ -119,3 +122,40 @@ void fifo_consumer_thread(void)
         k_sleep(K_MSEC(100));
     }
 }
+
+int cmd_send_fifo(const struct shell *sh, size_t argc, char **argv)
+{
+    // Allocate memory for the message from the heap
+    struct data_item_t *fifo_message = k_malloc(sizeof(struct data_item_t));
+    if (fifo_message == NULL)
+    {
+        LOG_ERR("Failed to allocate memory for FIFO message");
+    }
+    fifo_message->msg_counter = msg_counter;
+    strncpy(fifo_message->info, argv[1], sizeof(fifo_message->info) - 1);
+    fifo_message->info[sizeof(fifo_message->info) - 1] = '\0'; // null termiantion
+    k_fifo_put(&fifo_queue, fifo_message);                     // send message to FIFO
+    LOG_INF("Message %d saved to FIFO", msg_counter);
+    ++msg_counter;
+    return 0;
+}
+
+int cmd_read_fifo(const struct shell *sh, size_t argc, char **argv)
+{
+    struct data_item_t *fifo_received;
+    fifo_received = k_fifo_get(&fifo_queue, K_NO_WAIT);
+    if (fifo_received == NULL)
+    {
+        LOG_INF("FIFO empty");
+    }
+    else
+    {
+        LOG_INF("Read FIFO msg nr. %d \"%s\"", fifo_received->msg_counter, fifo_received->info);
+    }
+    k_free(fifo_received);
+    return 0;
+}
+
+// Register commands
+SHELL_CMD_ARG_REGISTER(send_fifo, NULL, "Send a message to FIFO message queue", cmd_send_fifo, 2, NULL); // 2 mandatory args - the command name and ther message itself
+SHELL_CMD_REGISTER(read_fifo, NULL, "Read first (oldest) message from the FIFO queue", cmd_read_fifo);

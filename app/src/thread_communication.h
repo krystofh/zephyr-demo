@@ -5,9 +5,10 @@
 #include <zephyr/sys/printk.h>
 #include <string.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/shell/shell.h>
 
 // SWITCH between static fifo messages and dynamically allocated
-#define FIFO_DYNAMIC 0
+#define FIFO_DYNAMIC 1
 
 extern int msg_counter;
 extern const char *static_message;
@@ -28,10 +29,21 @@ extern struct data_item_t
 } fifo_message;
 #endif // FIFO_DYNAMIC
 
+// // Linked list node
+// struct linked_list_node_t
+// {
+//     sys_node_t node;
+//     char character;
+// };
+
+// Functions
 void msgq_producer_thread(void);
 void msgq_consumer_thread(void);
 
 void fifo_producer_thread(void);
 void fifo_consumer_thread(void);
+
+int cmd_send_fifo(const struct shell *sh, size_t argc, char **argv);
+int cmd_read_fifo(const struct shell *sh, size_t argc, char **argv);
 
 #endif // THREAD_COMMUNICATION_H
