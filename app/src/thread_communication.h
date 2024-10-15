@@ -9,12 +9,12 @@
 extern int msg_counter;
 extern const char *static_message;
 
-extern struct data_item_t
+struct data_item_t
 {
     void *fifo_reserved; /* 1st word reserved for use by FIFO */
     int msg_counter;
     char *info;
-} fifo_message;
+};
 
 void msgq_producer_thread(void);
 void msgq_consumer_thread(void);

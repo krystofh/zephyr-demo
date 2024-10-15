@@ -22,10 +22,10 @@ K_THREAD_DEFINE(msgq_producer_tid, STACK_SIZE, msgq_producer_thread, NULL, NULL,
                 PRODUCER_PRIORITY, 0, 0);
 K_THREAD_DEFINE(msgq_consumer_tid, STACK_SIZE, msgq_consumer_thread, NULL, NULL, NULL,
                 CONSUMER_PRIORITY, 0, 0);
-K_THREAD_DEFINE(fifo_producer_tid, STACK_SIZE, fifo_producer_thread, NULL, NULL, NULL,
-                PRODUCER_PRIORITY, 0, 0);
-K_THREAD_DEFINE(fifo_consumer_tid, STACK_SIZE, fifo_consumer_thread, NULL, NULL, NULL,
-                CONSUMER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(fifo_producer_tid, STACK_SIZE, fifo_producer_thread, NULL, NULL, NULL,
+//                 PRODUCER_PRIORITY, 0, 0);
+// K_THREAD_DEFINE(fifo_consumer_tid, STACK_SIZE, fifo_consumer_thread, NULL, NULL, NULL,
+//                 CONSUMER_PRIORITY, 0, 0);
 
 int msg_counter = 0; // count number of sent FIFO msgs
 const char *static_message = "static message example";
@@ -77,8 +77,15 @@ void fifo_producer_thread(void)
 {
     while (1)
     {
-        fifo_message.msg_counter = msg_counter;
-        fifo_message.info = "test message";
+        // Allocate memory for the message from the heap
+        struct data_item_t *fifo_message = k_malloc(sizeof(struct data_item_t));
+        if (fifo_message == NULL)
+        {
+            LOG_ERR("Failed to allocate memory for FIFO message");
+            continue;
+        }
+        fifo_message->msg_counter = msg_counter;
+        fifo_message->info = "test message";
         k_fifo_put(&fifo_queue, &fifo_message); // send message to FIFO
         LOG_INF("FIFO sent msg nr. %d", msg_counter);
         ++msg_counter;
@@ -94,6 +101,8 @@ void fifo_consumer_thread(void)
     {
         fifo_rx = k_fifo_get(&fifo_queue, K_FOREVER);
         LOG_INF("FIFO received msg nr. %d \"%s\"", fifo_rx->msg_counter, fifo_rx->info);
+        // Free the memory after processing the message
+        k_free(fifo_rx);
         k_sleep(K_MSEC(100));
     }
 }
