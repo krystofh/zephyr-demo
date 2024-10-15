@@ -92,11 +92,12 @@ void fifo_producer_thread(void)
         // fifo_message->info = "test message";
         strncpy(fifo_message->info, "test message", sizeof(fifo_message->info) - 1);
         fifo_message->info[sizeof(fifo_message->info) - 1] = '\0'; // null termiantion
+        k_fifo_put(&fifo_queue, fifo_message);                     // send message to FIFOs
 #else
         fifo_message.msg_counter = msg_counter;
         fifo_message.info = "test message";
-#endif                                          // FIFO_DYNAMIC
         k_fifo_put(&fifo_queue, &fifo_message); // send message to FIFO
+#endif // FIFO_DYNAMIC
         LOG_INF("FIFO sent msg nr. %d", msg_counter);
         ++msg_counter;
         k_sleep(K_SECONDS(3));
