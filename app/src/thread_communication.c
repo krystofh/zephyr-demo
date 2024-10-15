@@ -89,7 +89,9 @@ void fifo_producer_thread(void)
             continue;
         }
         fifo_message->msg_counter = msg_counter;
-        fifo_message->info = "test message";
+        // fifo_message->info = "test message";
+        strncpy(fifo_message->info, "test message", sizeof(fifo_message->info) - 1);
+        fifo_message->info[sizeof(fifo_message->info) - 1] = '\0'; // null termiantion
 #else
         fifo_message.msg_counter = msg_counter;
         fifo_message.info = "test message";
