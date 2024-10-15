@@ -55,15 +55,15 @@ void stop_blinking()
     int ret = k_work_cancel_delayable(&led_work);
     if (ret == 0)
     {
-        LOG_INF("Blinking stopped successfully.\n");
+        LOG_INF("Blinking stopped successfully.");
     }
     else if (ret == -EALREADY)
     {
-        LOG_INF("Blinking was already stopped.\n"); // delete if not needed
+        LOG_INF("Blinking was already stopped."); // delete if not needed
     }
     else
     {
-        LOG_ERR("Failed to stop blinking.\n");
+        LOG_ERR("Failed to stop blinking.");
     }
 }
 
@@ -78,7 +78,7 @@ int cmd_led_on(const struct shell *sh, size_t argc, char **argv)
     {
         return 1;
     }
-    LOG_INF("LED ON\n");
+    LOG_INF("LED ON");
     return 0;
 }
 
@@ -104,13 +104,13 @@ int cmd_led_blink(const struct shell *sh, size_t argc, char **argv)
     if (blink_period > 0)
     {
         stop_blinking(); // stop previous work processing to react to new command exec
-        LOG_INF("Starting to blink with period %d ms\n", blink_period);
+        LOG_INF("Starting to blink with period %d ms", blink_period);
         k_work_init_delayable(&led_work, led_blink_work);
         k_work_schedule(&led_work, K_NO_WAIT); // schedule the first execution to start immediately
     }
     else
     {
-        LOG_ERR("Setting blink period not successful\n");
+        LOG_ERR("Setting blink period not successful");
         return 1;
     };
     return 0;

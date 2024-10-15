@@ -12,7 +12,7 @@ struct gpio_callback button_cb_data;
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
                     uint32_t pins)
 {
-    LOG_INF("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+    LOG_INF("Button pressed at %" PRIu32 "", k_cycle_get_32());
 }
 
 // Initialise button
@@ -29,7 +29,7 @@ int init_button()
     ret = gpio_pin_configure_dt(&button, GPIO_INPUT);
     if (ret != 0)
     {
-        LOG_ERR("Error %d: failed to configure %s pin %d\n",
+        LOG_ERR("Error %d: failed to configure %s pin %d",
                 ret, button.port->name, button.pin);
         return 1;
     }
@@ -38,13 +38,13 @@ int init_button()
                                           GPIO_INT_EDGE_TO_ACTIVE);
     if (ret != 0)
     {
-        LOG_ERR("Error %d: failed to configure interrupt on %s pin %d\n",
+        LOG_ERR("Error %d: failed to configure interrupt on %s pin %d",
                 ret, button.port->name, button.pin);
         return 1;
     }
 
     gpio_init_callback(&button_cb_data, button_pressed, BIT(button.pin));
     gpio_add_callback(button.port, &button_cb_data);
-    LOG_INF("Set up button at %s pin %d\n", button.port->name, button.pin);
+    LOG_INF("Set up button at %s pin %d", button.port->name, button.pin);
     return 0;
 }

@@ -43,7 +43,7 @@ void msgq_producer_thread(void)
         }
         else
         {
-            LOG_ERR("MSGQ failed to send message\n");
+            LOG_ERR("MSGQ failed to send message");
         }
 
         k_sleep(K_SECONDS(1));
@@ -61,11 +61,11 @@ void msgq_consumer_thread(void)
         int ret = k_msgq_get(&msg_queue, &received_msg, K_FOREVER); // Block if empty
         if (ret == 0)
         {
-            LOG_INF("MSGQ received \"%s\"\tIn queue remain: [%d] \n", received_msg, k_msgq_num_used_get(&msg_queue));
+            LOG_INF("MSGQ received \"%s\"\tIn queue remain: [%d]", received_msg, k_msgq_num_used_get(&msg_queue));
         }
         else
         {
-            LOG_ERR("MSGQ failed to receive message\n");
+            LOG_ERR("MSGQ failed to receive message");
         }
 
         k_sleep(K_SECONDS(5));

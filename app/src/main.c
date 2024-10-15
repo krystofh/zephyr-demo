@@ -76,7 +76,7 @@ int main(void)
 	uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
 	k_sleep(K_MSEC(100));
 	// }
-	LOG_INF("USB device configured and connected\n");
+	LOG_INF("USB device configured and connected");
 
 	// Thread demo - spawn threads only when console is initiated
 	// Define threads
