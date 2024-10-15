@@ -6,15 +6,27 @@
 #include <string.h>
 #include <zephyr/logging/log.h>
 
+// SWITCH between static fifo messages and dynamically allocated
+#define FIFO_DYNAMIC 0
+
 extern int msg_counter;
 extern const char *static_message;
 
+#if FIFO_DYNAMIC
 struct data_item_t
 {
     void *fifo_reserved; /* 1st word reserved for use by FIFO */
     int msg_counter;
     char *info;
 };
+#else
+extern struct data_item_t
+{
+    void *fifo_reserved; /* 1st word reserved for use by FIFO */
+    int msg_counter;
+    char *info;
+} fifo_message;
+#endif // FIFO_DYNAMIC
 
 void msgq_producer_thread(void);
 void msgq_consumer_thread(void);
