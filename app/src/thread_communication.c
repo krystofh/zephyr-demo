@@ -26,12 +26,9 @@ K_FIFO_DEFINE(fifo_queue);                                           // FIFO, Th
 
 int msg_counter = 0; // count total number of sent FIFO messages (no reset)
 const char *static_message = "static message example";
-#if FIFO_DYNAMIC
-#else
-struct data_item_t fifo_message;
-#endif // FIFO_DYNAMIC
 sys_slist_t linked_list;
 
+// ----- Thread communication demo ------------------------------------------
 // Producer thread function for MSGQ sending static message every 1 second
 void msgq_producer_thread(void)
 {
@@ -125,7 +122,11 @@ int cmd_send_msgq(const struct shell *sh, size_t argc, char **argv)
     int ret = k_msgq_put(&msg_queue, argv[1], K_NO_WAIT); // K_NO_WAIT if sending in any case, K_FOREVER for waiting if can't be sent
     if (ret == 0)
     {
-        LOG_INF("MSGQ new message sent"); // TODO in total
+        LOG_INF("MSGQ new message sent. %d/%d in total. ", k_msgq_num_used_get(&msg_queue), CONFIG_QUEUE_SIZE);
+    }
+    else if ((k_msgq_num_used_get(&msg_queue)) == CONFIG_QUEUE_SIZE)
+    {
+        LOG_ERR("MSGQ full. Message not sent.");
     }
     else
     {
@@ -141,6 +142,10 @@ int cmd_read_msgq(const struct shell *sh, size_t argc, char **argv)
     if (ret == 0)
     {
         LOG_INF("MSGQ received \"%s\"\tIn queue remain: [%d]", received_msg, k_msgq_num_used_get(&msg_queue));
+    }
+    else if ((k_msgq_num_used_get(&msg_queue)) == 0)
+    {
+        LOG_INF("MSGQ empty");
     }
     else
     {
