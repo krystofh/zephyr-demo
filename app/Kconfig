@@ -17,6 +17,20 @@ config USB_DEVICE_PID
     default USB_PID_CONSOLE_SAMPLE
 endmenu
 
+menu "Message queue configuration"
+config QUEUE_SIZE
+    int "Queue size"
+    default 3
+    help
+      Defines the size of the message queue.
+
+config MSG_BYTESIZE
+    int "Message byte size"
+    default 24
+    help
+      Defines the size of the messages in bytes.
+endmenu
+
 # Logging modules
 module = MAIN
 module-str = main

@@ -3,12 +3,9 @@
 //// ----------- Thread communication example -------------------------------------------------------
 LOG_MODULE_REGISTER(messaging, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log level for the module
 
-// Message queue declaration
-#define QUEUE_SIZE 3 // store only part of messages that are sent
-#define MSG_SIZE 24  // 1 for each char + 1 for null terminator
-
-K_MSGQ_DEFINE(msg_queue, MSG_SIZE, QUEUE_SIZE, 4); // msg queue aligned to 4 bytes
-K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to the number of items that may be queued.
+// Message queue declaration using project settings
+K_MSGQ_DEFINE(msg_queue, CONFIG_MSG_BYTESIZE, CONFIG_QUEUE_SIZE, 4); // msg queue aligned to 4 bytes
+K_FIFO_DEFINE(fifo_queue);                                           // FIFO, There is no limit to the number of items that may be queued.
 
 // Thread stack sizes
 #define STACK_SIZE 1024
@@ -57,7 +54,7 @@ void msgq_producer_thread(void)
 // Consumer thread function for MSGQ
 void msgq_consumer_thread(void)
 {
-    char received_msg[MSG_SIZE]; // for storage of received chars
+    char received_msg[CONFIG_MSG_BYTESIZE]; // for storage of received chars
 
     while (1)
     {
@@ -139,7 +136,7 @@ int cmd_send_msgq(const struct shell *sh, size_t argc, char **argv)
 
 int cmd_read_msgq(const struct shell *sh, size_t argc, char **argv)
 {
-    char received_msg[MSG_SIZE];                                // for storage of received chars
+    char received_msg[CONFIG_MSG_BYTESIZE];                     // for storage of received chars
     int ret = k_msgq_get(&msg_queue, &received_msg, K_NO_WAIT); // alternatively K_FOREVER but here it would freeze
     if (ret == 0)
     {
