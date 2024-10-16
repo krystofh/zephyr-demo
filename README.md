@@ -9,7 +9,11 @@ Showcase of Zephyr RTOS functionality such as:
 - usage of `prj.conf` and `Kconfig` for enabling necessary Zephyr libraries and setting up user-defined project settings (analog to macros)
 - usage of logging (information, error messages, ...)
 - sending messages manually per commands into message queue of a defined size, to FIFO and to linked list
+  - set `CONFIG_QUEUE_SIZE` to adjust the limit of stored messages
+  - set `CONFIG_MSG_BYTESIZE` to change the size limit of each message (in bytes)
 - running a producer and consumer thread for a (mockup) sensor reading every x seconds
+  - set `CONFIG_SENSOR=y` or use `menuconfig` to enable this function
+  - set `CONFIG_SENSOR_PERIOD` to change the sensor measurement interval
 
 This example application follows the T2 topology (workspace application type `app`) as described [here](https://docs.zephyrproject.org/latest/develop/getting_started/index.html).
 
@@ -18,7 +22,7 @@ Tested using:
 - macOS Sequoia 15.0.1
 - VS Code Version: 1.94.2
 
-# Build
+## Build
 
 - navigate to the directory where you want to clone the repo and: 
   - ```bash
@@ -31,7 +35,7 @@ Tested using:
   - use `-p always` for a clean build (pristine directory)
 - The `.uf2` file is located in `zephyr-demo/build/zephyr`
 
-# Available commands
+## Available commands
 
 After connecting to the device, following list of commands is available. Use `help` for more details.
 
@@ -67,11 +71,32 @@ Available commands:
   shell  : Useful, not Unix-like shell commands.
 ```
 
-# Demonstration
+## Demonstration
 
-![CLI commands demo](doc/showcase.gif)
+### Controlling the LED
 
-![CLI commands demo](doc/showcase_video.gif)
+![LED commands demo](doc/showcase.gif)
+
+![LED commands demo](doc/showcase_video.gif)
+
+### Sending messages (Message queue)
+
+<img src="doc/send_msgq.png" width="600px">
+
+... (second message sent)
+
+<img src="doc/send_msgq3.png" width="580px">
+<img src="doc/send_msgq_full.png" width="550px">
+
+
+### Reading messages
+
+<img src="doc/read_msgq.png" width="700px">
+
+Or from an empty linked list:
+
+<img src="doc/read_ll_empty.png" width="400px">
+
 
 ## Useful links and hints
 

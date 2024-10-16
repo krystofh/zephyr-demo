@@ -44,13 +44,13 @@ int main(void)
 {
 	LOG_INF("Program starting\n"); // example info message
 	// Init the LED devices in logic 1 state
-	if (!init_leds())
+	if (init_leds())
 	{
-		LOG_ERR("LED devices initialised properly");
+		LOG_ERR("LEDs could not be initialised!");
 	}
 	else
 	{
-		LOG_INF("LEDs could not be initialised!");
+		LOG_INF("LED devices initialised properly");
 	}
 
 	// Button config
