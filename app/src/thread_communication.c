@@ -121,6 +121,37 @@ void fifo_consumer_thread(void)
     }
 }
 
+// ------ COMMANDS ------------------------------------------------
+
+int cmd_send_msgq(const struct shell *sh, size_t argc, char **argv)
+{
+    int ret = k_msgq_put(&msg_queue, argv[1], K_NO_WAIT); // K_NO_WAIT if sending in any case, K_FOREVER for waiting if can't be sent
+    if (ret == 0)
+    {
+        LOG_INF("MSGQ new message sent"); // TODO in total
+    }
+    else
+    {
+        LOG_ERR("MSGQ failed to send message");
+    }
+    return 0;
+}
+
+int cmd_read_msgq(const struct shell *sh, size_t argc, char **argv)
+{
+    char received_msg[MSG_SIZE];                                // for storage of received chars
+    int ret = k_msgq_get(&msg_queue, &received_msg, K_NO_WAIT); // alternatively K_FOREVER but here it would freeze
+    if (ret == 0)
+    {
+        LOG_INF("MSGQ received \"%s\"\tIn queue remain: [%d]", received_msg, k_msgq_num_used_get(&msg_queue));
+    }
+    else
+    {
+        LOG_ERR("MSGQ failed to receive message");
+    }
+    return 0;
+}
+
 int cmd_send_fifo(const struct shell *sh, size_t argc, char **argv)
 {
     // Allocate memory for the message from the heap
@@ -192,6 +223,9 @@ int cmd_read_ll(const struct shell *sh, size_t argc, char **argv)
 }
 
 // Register commands
+SHELL_CMD_ARG_REGISTER(send_msgq, NULL, "Send a message to MSGQ", cmd_send_msgq, 2, NULL); // 2 mandatory args - the command name and ther message itself
+SHELL_CMD_REGISTER(read_msgq, NULL, "Read first (oldest) message from MSGQ", cmd_read_msgq);
+
 SHELL_CMD_ARG_REGISTER(send_fifo, NULL, "Send a message to FIFO message queue", cmd_send_fifo, 2, NULL); // 2 mandatory args - the command name and ther message itself
 SHELL_CMD_REGISTER(read_fifo, NULL, "Read first (oldest) message from the FIFO queue", cmd_read_fifo);
 

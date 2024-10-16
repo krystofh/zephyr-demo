@@ -45,6 +45,9 @@ void msgq_consumer_thread(void);
 void fifo_producer_thread(void);
 void fifo_consumer_thread(void);
 
+int cmd_send_msgq(const struct shell *sh, size_t argc, char **argv);
+int cmd_read_msgq(const struct shell *sh, size_t argc, char **argv);
+
 int cmd_send_fifo(const struct shell *sh, size_t argc, char **argv);
 int cmd_read_fifo(const struct shell *sh, size_t argc, char **argv);
 
