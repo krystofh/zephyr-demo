@@ -34,7 +34,7 @@ endmenu
 menu "Sensor logging"
 config SENSOR
     bool "Enable logging of (mockup) sensor"
-    default y  
+    default n  
     help
         Enables or disables the thread that produces and consumes (mockup) sensor readings
 config SENSOR_PERIOD

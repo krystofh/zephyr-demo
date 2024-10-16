@@ -6,10 +6,8 @@
 #include <zephyr/sys/slist.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/shell/shell.h>
+#include <zephyr/random/rand32.h> // For sys_rand32_get()
 #include <string.h>
-
-// SWITCH between static fifo messages and dynamically allocated
-#define FIFO_DYNAMIC 1
 
 extern int msg_counter;
 extern int sensor_counter;
@@ -26,7 +24,7 @@ struct sensor_data_t
 {
     void *fifo_reserved; /* 1st word reserved for use by FIFO */
     int msg_counter;
-    int value; // mockup sensor value
+    u_int32_t value; // mockup sensor value
 };
 
 // // Linked list and node

@@ -42,8 +42,8 @@ void sensor_producer_thread(void)
             continue;
         }
         sensor_msg->msg_counter = sensor_counter;
-        sensor_msg->value = 0;                 // TODO random number generator later
-        k_fifo_put(&sensor_queue, sensor_msg); // send message to sensor FIFO
+        sensor_msg->value = sys_rand32_get() % 101; // Get random 32-bit number 0-100
+        k_fifo_put(&sensor_queue, sensor_msg);      // send message to sensor FIFO
         LOG_INF("Sensor recorded value nr. %d", sensor_counter);
         ++sensor_counter;
         k_sleep(K_SECONDS(10));
@@ -56,8 +56,8 @@ void sensor_consumer_thread(void)
     struct sensor_data_t *sensor_rx;
     while (1)
     {
-        sensor_rx = k_fifo_get(&sensor_queue, K_FOREVER); // wait until message is obtained
-        LOG_INF("Sensor value nr. %d: %d", sensor_rx->msg_counter, sensor_rx->value);
+        sensor_rx = k_fifo_get(&sensor_queue, K_FOREVER);                                // wait until message is obtained
+        LOG_INF("Sensor value nr. %d: %d ly", sensor_rx->msg_counter, sensor_rx->value); // light years units :-)
         // Free the memory after processing the message
         k_free(sensor_rx);
         k_sleep(K_MSEC(100));
