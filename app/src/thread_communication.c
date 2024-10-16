@@ -8,8 +8,7 @@ LOG_MODULE_REGISTER(messaging, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log l
 #define MSG_SIZE 24  // 1 for each char + 1 for null terminator
 
 K_MSGQ_DEFINE(msg_queue, MSG_SIZE, QUEUE_SIZE, 4); // msg queue aligned to 4 bytes
-// K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to the number of items that may be queued.
-K_FIFO_DEFINE(fifo_queue);
+K_FIFO_DEFINE(fifo_queue);                         // FIFO, There is no limit to the number of items that may be queued.
 
 // Thread stack sizes
 #define STACK_SIZE 1024
@@ -34,8 +33,7 @@ const char *static_message = "static message example";
 #else
 struct data_item_t fifo_message;
 #endif // FIFO_DYNAMIC
-// sys_slist_t linked_list;
-// sys_slist_init(&linked_list); // initialise the linked list
+sys_slist_t linked_list;
 
 // Producer thread function for MSGQ sending static message every 1 second
 void msgq_producer_thread(void)
@@ -156,6 +154,46 @@ int cmd_read_fifo(const struct shell *sh, size_t argc, char **argv)
     return 0;
 }
 
+// init linked list
+void init_ll(void)
+{
+    sys_slist_init(&linked_list); // initialise the linked list
+}
+
+// store in linked list
+int cmd_send_ll(const struct shell *sh, size_t argc, char **argv)
+{
+    struct list_node_t *new_node = k_malloc(sizeof(struct list_node_t));
+    if (!new_node)
+    {
+        LOG_ERR("Linked list node memory allocation failed!");
+    }
+    strncpy(new_node->info, argv[1], sizeof(new_node->info) - 1);
+    new_node->info[sizeof(new_node->info) - 1] = '\0'; // null termiantion
+    sys_slist_append(&linked_list, &new_node->next);
+    LOG_INF("Linked list node appended. %d nodes in total.", sys_slist_len(&linked_list));
+    return 0;
+}
+
+// read from linked list
+int cmd_read_ll(const struct shell *sh, size_t argc, char **argv)
+{
+    struct list_node_t *p_node = sys_slist_get(&linked_list); // Fetch and remove the first node of the given list
+    if (p_node == NULL)
+    {
+        LOG_INF("Linked list empty");
+    }
+    else
+    {
+        LOG_INF("Read list node with message \"%s\"", p_node->info);
+    }
+    k_free(p_node);
+    return 0;
+}
+
 // Register commands
 SHELL_CMD_ARG_REGISTER(send_fifo, NULL, "Send a message to FIFO message queue", cmd_send_fifo, 2, NULL); // 2 mandatory args - the command name and ther message itself
 SHELL_CMD_REGISTER(read_fifo, NULL, "Read first (oldest) message from the FIFO queue", cmd_read_fifo);
+
+SHELL_CMD_ARG_REGISTER(send_ll, NULL, "Send a message to linked list", cmd_send_ll, 2, NULL); // 2 mandatory args - the command name and ther message itself
+SHELL_CMD_REGISTER(read_ll, NULL, "Read message from the linked list", cmd_read_ll);

@@ -78,9 +78,7 @@ int main(void)
 	// }
 	LOG_INF("USB device configured and connected");
 
-	// Thread demo - spawn threads only when console is initiated
-	// Define threads
-	// sinit_threads();
+	init_ll(); // init linked list
 
 	// Wait in this loop for shell commands or process messages
 	while (true)
