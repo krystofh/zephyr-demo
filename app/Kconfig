@@ -31,6 +31,19 @@ config MSG_BYTESIZE
       Defines the size of the messages in bytes.
 endmenu
 
+menu "Sensor logging"
+config SENSOR
+    bool "Enable logging of (mockup) sensor"
+    default y  
+    help
+        Enables or disables the thread that produces and consumes (mockup) sensor readings
+config SENSOR_PERIOD
+    int "Sensor measurement period in s. Readout happens immediately after."
+    default 10
+    help
+        Defines the sensor measurement period in s. Readout happens immediately after.
+endmenu
+
 # Logging modules
 module = MAIN
 module-str = main

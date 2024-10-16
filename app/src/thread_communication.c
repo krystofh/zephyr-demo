@@ -6,111 +6,60 @@ LOG_MODULE_REGISTER(messaging, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log l
 // Message queue declaration using project settings
 K_MSGQ_DEFINE(msg_queue, CONFIG_MSG_BYTESIZE, CONFIG_QUEUE_SIZE, 4); // msg queue aligned to 4 bytes
 K_FIFO_DEFINE(fifo_queue);                                           // FIFO, There is no limit to the number of items that may be queued.
+K_FIFO_DEFINE(sensor_queue);                                         // FIFO, There is no limit to the number of items that may be queued.
 
 // Thread stack sizes
 #define STACK_SIZE 1024
 
 // Thread priorities
-#define PRODUCER_PRIORITY 1
-#define CONSUMER_PRIORITY 1
+#define PRODUCER_PRIORITY 7
+#define CONSUMER_PRIORITY 7
 
-// Spawn threads
-// K_THREAD_DEFINE(msgq_producer_tid, STACK_SIZE, msgq_producer_thread, NULL, NULL, NULL,
-//                 PRODUCER_PRIORITY, 0, 0);
-// K_THREAD_DEFINE(msgq_consumer_tid, STACK_SIZE, msgq_consumer_thread, NULL, NULL, NULL,
-//                 CONSUMER_PRIORITY, 0, 0);
-// K_THREAD_DEFINE(fifo_producer_tid, STACK_SIZE, fifo_producer_thread, NULL, NULL, NULL,
-//                 PRODUCER_PRIORITY, 0, 0);
-// K_THREAD_DEFINE(fifo_consumer_tid, STACK_SIZE, fifo_consumer_thread, NULL, NULL, NULL,
-//                 CONSUMER_PRIORITY, 0, 0);
+// Spawn thread(s) for (mockup) sensor readings
+#ifdef CONFIG_SENSOR
+K_THREAD_DEFINE(sensor_producer_tid, STACK_SIZE, sensor_producer_thread, NULL, NULL, NULL,
+                PRODUCER_PRIORITY, 0, 0);
+K_THREAD_DEFINE(sensor_consumer_tid, STACK_SIZE, sensor_consumer_thread, NULL, NULL, NULL,
+                CONSUMER_PRIORITY, 0, 0);
+#endif // CONFIG_SENSOR
 
-int msg_counter = 0; // count total number of sent FIFO messages (no reset)
+int msg_counter = 0;    // count total number of sent FIFO messages (no reset)
+int sensor_counter = 0; // count total number of values sent by a mockup sensor
 const char *static_message = "static message example";
 sys_slist_t linked_list;
 
 // ----- Thread communication demo ------------------------------------------
-// Producer thread function for MSGQ sending static message every 1 second
-void msgq_producer_thread(void)
+//  Mockup sensor producing data in FIFO
+void sensor_producer_thread(void)
 {
     while (1)
     {
-        int ret = k_msgq_put(&msg_queue, static_message, K_NO_WAIT); // K_NO_WAIT if sending in any case, K_FOREVER for waiting if can't be sent
-        if (ret == 0)
-        {
-            LOG_INF("MSGQ new message sent");
-        }
-        else
-        {
-            LOG_ERR("MSGQ failed to send message");
-        }
-
-        k_sleep(K_SECONDS(1));
-    }
-}
-
-// Consumer thread function for MSGQ
-void msgq_consumer_thread(void)
-{
-    char received_msg[CONFIG_MSG_BYTESIZE]; // for storage of received chars
-
-    while (1)
-    {
-        // Receive message every 5 seconds
-        int ret = k_msgq_get(&msg_queue, &received_msg, K_FOREVER); // Block if empty
-        if (ret == 0)
-        {
-            LOG_INF("MSGQ received \"%s\"\tIn queue remain: [%d]", received_msg, k_msgq_num_used_get(&msg_queue));
-        }
-        else
-        {
-            LOG_ERR("MSGQ failed to receive message");
-        }
-
-        k_sleep(K_SECONDS(5));
-    }
-}
-
-//  Producer thread for FIFO
-void fifo_producer_thread(void)
-{
-    while (1)
-    {
-#if FIFO_DYNAMIC
         // Allocate memory for the message from the heap
-        struct data_item_t *fifo_message = k_malloc(sizeof(struct data_item_t));
-        if (fifo_message == NULL)
+        struct sensor_data_t *sensor_msg = k_malloc(sizeof(struct sensor_data_t));
+        if (sensor_msg == NULL)
         {
-            LOG_ERR("Failed to allocate memory for FIFO message");
+            LOG_ERR("Failed to allocate memory for sensor message");
             continue;
         }
-        fifo_message->msg_counter = msg_counter;
-        // fifo_message->info = "test message";
-        strncpy(fifo_message->info, "test message", sizeof(fifo_message->info) - 1);
-        fifo_message->info[sizeof(fifo_message->info) - 1] = '\0'; // null termiantion
-        k_fifo_put(&fifo_queue, fifo_message);                     // send message to FIFOs
-#else
-        fifo_message.msg_counter = msg_counter;
-        fifo_message.info = "test message";
-        k_fifo_put(&fifo_queue, &fifo_message); // send message to FIFO
-#endif // FIFO_DYNAMIC
-        LOG_INF("FIFO sent msg nr. %d", msg_counter);
-        ++msg_counter;
-        k_sleep(K_SECONDS(3));
+        sensor_msg->msg_counter = sensor_counter;
+        sensor_msg->value = 0;                 // TODO random number generator later
+        k_fifo_put(&sensor_queue, sensor_msg); // send message to sensor FIFO
+        LOG_INF("Sensor recorded value nr. %d", sensor_counter);
+        ++sensor_counter;
+        k_sleep(K_SECONDS(10));
     }
 }
 
 // Consumer thread for FIFO
-void fifo_consumer_thread(void)
+void sensor_consumer_thread(void)
 {
-    struct data_item_t *fifo_rx;
+    struct sensor_data_t *sensor_rx;
     while (1)
     {
-        fifo_rx = k_fifo_get(&fifo_queue, K_FOREVER);
-        LOG_INF("FIFO received msg nr. %d \"%s\"", fifo_rx->msg_counter, fifo_rx->info);
-#if FIFO_DYNAMIC
+        sensor_rx = k_fifo_get(&sensor_queue, K_FOREVER); // wait until message is obtained
+        LOG_INF("Sensor value nr. %d: %d", sensor_rx->msg_counter, sensor_rx->value);
         // Free the memory after processing the message
-        k_free(fifo_rx);
-#endif // FIFO_DYNAMIC
+        k_free(sensor_rx);
         k_sleep(K_MSEC(100));
     }
 }

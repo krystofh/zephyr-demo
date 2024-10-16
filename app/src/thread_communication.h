@@ -12,6 +12,7 @@
 #define FIFO_DYNAMIC 1
 
 extern int msg_counter;
+extern int sensor_counter;
 extern const char *static_message;
 
 struct data_item_t
@@ -19,6 +20,13 @@ struct data_item_t
     void *fifo_reserved; /* 1st word reserved for use by FIFO */
     int msg_counter;
     char info[50]; // set to a fixed max. length
+};
+
+struct sensor_data_t
+{
+    void *fifo_reserved; /* 1st word reserved for use by FIFO */
+    int msg_counter;
+    int value; // mockup sensor value
 };
 
 // // Linked list and node
@@ -30,11 +38,8 @@ struct list_node_t
 };
 
 // Functions
-void msgq_producer_thread(void);
-void msgq_consumer_thread(void);
-
-void fifo_producer_thread(void);
-void fifo_consumer_thread(void);
+void sensor_producer_thread(void);
+void sensor_consumer_thread(void);
 
 int cmd_send_msgq(const struct shell *sh, size_t argc, char **argv);
 int cmd_read_msgq(const struct shell *sh, size_t argc, char **argv);
