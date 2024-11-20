@@ -25,8 +25,8 @@ enum button_evt
 
 // Function declarations
 static char *helper_button_evt_str(enum button_evt evt);
-void button_pressed(const struct device *dev, struct gpio_callback *cb,
-                    uint32_t pins);
+void button_isr(const struct device *dev, struct gpio_callback *cb,
+                uint32_t pins);
 static void button_work_handler(struct k_work *work);
 static void longpress_work_handler(struct k_work *work);
 int init_button(void);
