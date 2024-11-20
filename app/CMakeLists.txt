@@ -14,5 +14,7 @@ target_sources(app PRIVATE src/led_control.c)
 target_sources(app PRIVATE src/console_demo.c)
 target_sources(app PRIVATE src/button_control.c)
 target_sources(app PRIVATE src/thread_communication.c)
+# target_sources(app PRIVATE src/button_demo.c)
+
 
 

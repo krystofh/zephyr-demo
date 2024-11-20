@@ -17,7 +17,14 @@
 extern const struct gpio_dt_spec button;
 extern struct gpio_callback button_cb_data;
 
+enum button_evt
+{
+    BUTTON_EVT_PRESSED,
+    BUTTON_EVT_RELEASED
+};
+
 // Function declarations
+static char *helper_button_evt_str(enum button_evt evt);
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
                     uint32_t pins);
 int init_button(void);
