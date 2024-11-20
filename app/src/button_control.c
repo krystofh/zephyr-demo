@@ -2,6 +2,8 @@
 
 //// ----------- BUTTON CONTROL -------------------------------------------------------
 #define DEBOUNCE_DELAY_MS 15                               // Debounce delay in milliseconds
+#define LONGPRESS_OFFSET_MS 1000                           // if x ms after button press is detected the state did not change -> longpress detected
+#define LONGPRESS_ACTION_MS 200                            // while having longpress, in intervals of x ms do action y
 LOG_MODULE_REGISTER(buttonctrl, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log level for the module
 
 /*
@@ -10,9 +12,9 @@ LOG_MODULE_REGISTER(buttonctrl, CONFIG_LOG_DEFAULT_LEVEL); // Registers the log 
 const struct gpio_dt_spec button = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios,
                                                        {0});
 struct gpio_callback button_cb_data;
-static bool button_state = 0;
 // Declare kernel work item
 static struct k_work_delayable button_work;
+static struct k_work_delayable longpress_work;
 
 static char *helper_button_evt_str(enum button_evt evt)
 {
@@ -30,11 +32,25 @@ static char *helper_button_evt_str(enum button_evt evt)
 // Function to handle the work (debounce timer expiration)
 static void button_work_handler(struct k_work *work)
 {
-    // Set button_pressed flag
     ARG_UNUSED(work);
     int val = gpio_pin_get_dt(&button);
     enum button_evt evt = val ? BUTTON_EVT_PRESSED : BUTTON_EVT_RELEASED;
     LOG_INF("Button event: %s\n", helper_button_evt_str(evt));
+    if (evt == BUTTON_EVT_PRESSED)
+    {
+        k_work_reschedule(&longpress_work, K_MSEC(LONGPRESS_OFFSET_MS));
+    }
+    else
+    {
+        k_work_cancel_delayable(&longpress_work); // on release, clear longpress queue
+    }
+}
+
+// Long press handler
+static void longpress_work_handler(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    LOG_INF("long press detected");
 }
 
 void button_isr(const struct device *dev, struct gpio_callback *cb,
@@ -86,9 +102,9 @@ int init_button()
 
     gpio_init_callback(&button_cb_data, button_isr, BIT(button.pin));
     gpio_add_callback(button.port, &button_cb_data);
-    button_state = gpio_pin_get_dt(&button);
     // Initialize delayed work
     k_work_init_delayable(&button_work, button_work_handler);
+    k_work_init_delayable(&longpress_work, longpress_work_handler);
     LOG_INF("Set up button at %s pin %d", button.port->name, button.pin);
     return 0;
 }
